@@ -15,10 +15,12 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 
 def hash_password(password: str) -> str:
-    return pwd_context.hash(password[:72])
+    truncated = password.encode('utf-8')[:72].decode('utf-8', errors='ignore')
+    return pwd_context.hash(truncated)
 
 def verify_password(plain: str, hashed: str) -> bool:
-    return pwd_context.verify(plain[:72], hashed)
+    truncated = plain.encode('utf-8')[:72].decode('utf-8', errors='ignore')
+    return pwd_context.verify(truncated, hashed)
 
 def create_access_token(data: dict) -> str:
     to_encode = data.copy()
@@ -30,13 +32,18 @@ def create_access_token(data: dict) -> str:
         to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM
     )
 
-def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+def get_current_user(
+    token: str = Depends(oauth2_scheme),
+    db: Session = Depends(get_db)
+):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials"
     )
     try:
-        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        payload = jwt.decode(
+            token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
+        )
         email: str = payload.get("sub")
         if email is None:
             raise credentials_exception
@@ -47,7 +54,6 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
         raise credentials_exception
     return user
 
-# ── Register ──────────────────────────────────────────
 @router.post("/register", response_model=UserResponse)
 def register(user: UserCreate, db: Session = Depends(get_db)):
     existing = db.query(User).filter(User.email == user.email).first()
@@ -63,7 +69,6 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
     db.refresh(new_user)
     return new_user
 
-# ── Login ─────────────────────────────────────────────
 @router.post("/login")
 def login(
     form_data: OAuth2PasswordRequestForm = Depends(),
