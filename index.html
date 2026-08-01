@@ -1,0 +1,2635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quantfolio — Portfolio Intelligence. Powered by AI.</title>
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    /* ==========================================
+       DESIGN SYSTEM & CSS VARIABLES
+       ========================================== */
+    :root {
+      --color-primary: #185FA5;
+      --color-primary-light: #2579cc;
+      --color-navy-dark: #0f172a;
+      --color-navy-medium: #1e293b;
+      --color-navy-light: #334155;
+      --color-white: #ffffff;
+      --color-gray-50: #f8fafc;
+      --color-gray-100: #f1f5f9;
+      --color-gray-200: #e2e8f0;
+      --color-gray-300: #cbd5e1;
+      --color-gray-400: #94a3b8;
+      --color-gray-500: #64748b;
+      --color-green: #16a34a;
+      --color-green-light: #22c55e;
+      --color-red: #dc2626;
+      --color-red-light: #ef4444;
+      --color-amber: #d97706;
+      --color-amber-light: #f59e0b;
+
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      --transition-medium: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      --transition-slow: 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* ==========================================
+       BASE STYLES & RESET
+       ========================================== */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      font-size: 16px;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--color-white);
+      color: var(--color-navy-dark);
+      line-height: 1.5;
+      overflow-x: hidden;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      line-height: 1.15;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+      transition: var(--transition-fast);
+    }
+
+    button {
+      font-family: var(--font-sans);
+      cursor: pointer;
+      border: none;
+      background: none;
+      outline: none;
+      transition: var(--transition-fast);
+    }
+
+    /* Scrollbar Style */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--color-navy-dark);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--color-navy-light);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--color-primary);
+    }
+
+    /* ==========================================
+       UTILITIES & ANIMATION HELPER CLASSES
+       ========================================== */
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 0 1.25rem;
+      }
+    }
+
+    .section-padding {
+      padding: 7.5rem 0;
+    }
+
+    @media (max-width: 768px) {
+      .section-padding {
+        padding: 4.5rem 0;
+      }
+    }
+
+    /* Scroll Trigger Fade-Up */
+    .fade-up {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity var(--transition-slow), transform var(--transition-slow);
+    }
+
+    .fade-up.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Staggered Delay Utilities */
+    .delay-1 { transition-delay: 0.1s; }
+    .delay-2 { transition-delay: 0.2s; }
+    .delay-3 { transition-delay: 0.3s; }
+    .delay-4 { transition-delay: 0.4s; }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.875rem 1.75rem;
+      font-size: 0.9375rem;
+      font-weight: 600;
+      border-radius: 8px;
+      transition: var(--transition-fast);
+    }
+
+    .btn-primary {
+      background-color: var(--color-primary);
+      color: var(--color-white);
+      box-shadow: 0 4px 14px rgba(24, 95, 165, 0.4);
+    }
+
+    .btn-primary:hover {
+      background-color: var(--color-primary-light);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(24, 95, 165, 0.5);
+    }
+
+    .btn-secondary {
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: var(--color-white);
+      background-color: rgba(255, 255, 255, 0.03);
+    }
+
+    .btn-secondary:hover {
+      background-color: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.4);
+      transform: translateY(-2px);
+    }
+
+    .btn-dark {
+      background-color: var(--color-navy-dark);
+      color: var(--color-white);
+    }
+
+    .btn-dark:hover {
+      background-color: var(--color-navy-medium);
+      transform: translateY(-2px);
+    }
+
+    /* ==========================================
+       NAVBAR
+       ========================================== */
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 1000;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      transition: var(--transition-medium);
+    }
+
+    header.scrolled {
+      background-color: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--color-gray-200);
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03);
+    }
+
+    .nav-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 4.5rem;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .logo-icon {
+      width: 24px;
+      height: 24px;
+      fill: var(--color-white);
+      transition: var(--transition-medium);
+    }
+
+    header.scrolled .logo-icon {
+      fill: var(--color-primary);
+    }
+
+    .logo-text {
+      font-size: 1.25rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: var(--color-white);
+      transition: var(--transition-medium);
+    }
+
+    header.scrolled .logo-text {
+      color: var(--color-navy-dark);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2.25rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--color-gray-400);
+      padding: 0.5rem 0;
+      position: relative;
+    }
+
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background-color: var(--color-primary);
+      transition: var(--transition-fast);
+    }
+
+    .nav-links a:hover::after {
+      width: 100%;
+    }
+
+    .nav-links a:hover {
+      color: var(--color-white);
+    }
+
+    header.scrolled .nav-links a {
+      color: var(--color-gray-500);
+    }
+
+    header.scrolled .nav-links a:hover {
+      color: var(--color-navy-dark);
+    }
+
+    .nav-cta {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .nav-cta-btn {
+      padding: 0.5rem 1.25rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      border-radius: 6px;
+      transition: var(--transition-fast);
+    }
+
+    .nav-cta-btn.ghost {
+      color: var(--color-white);
+    }
+
+    header.scrolled .nav-cta-btn.ghost {
+      color: var(--color-navy-dark);
+    }
+
+    .nav-cta-btn.primary {
+      background-color: var(--color-white);
+      color: var(--color-navy-dark);
+    }
+
+    header.scrolled .nav-cta-btn.primary {
+      background-color: var(--color-primary);
+      color: var(--color-white);
+      box-shadow: 0 4px 10px rgba(24, 95, 165, 0.2);
+    }
+
+    /* Mobile Nav Toggle */
+    .mobile-menu-btn {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      width: 24px;
+      height: 24px;
+      justify-content: center;
+      z-index: 1001;
+    }
+
+    .mobile-menu-btn span {
+      width: 100%;
+      height: 2px;
+      background-color: var(--color-white);
+      transition: var(--transition-fast);
+    }
+
+    header.scrolled .mobile-menu-btn span {
+      background-color: var(--color-navy-dark);
+    }
+
+    @media (max-width: 768px) {
+      .nav-links, .nav-cta {
+        display: none;
+      }
+      .mobile-menu-btn {
+        display: flex;
+      }
+    }
+
+    /* Mobile Overlay Menu */
+    .mobile-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100vh;
+      background-color: var(--color-navy-dark);
+      z-index: 999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: var(--transition-medium);
+    }
+
+    .mobile-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .mobile-overlay .nav-links {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .mobile-overlay .nav-links a {
+      font-size: 1.25rem;
+      color: var(--color-white);
+    }
+
+    .mobile-overlay .nav-cta {
+      display: flex;
+      flex-direction: column;
+      width: 80%;
+      gap: 1rem;
+    }
+
+    /* ==========================================
+       HERO SECTION
+       ========================================== */
+    .hero-section {
+      background-color: var(--color-navy-dark);
+      min-height: 100vh;
+      position: relative;
+      display: flex;
+      align-items: center;
+      padding-top: 6rem;
+      overflow: hidden;
+    }
+
+    #hero-particles {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .hero-grid {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 4rem;
+      align-items: center;
+    }
+
+    @media (max-width: 992px) {
+      .hero-grid {
+        grid-template-columns: 1fr;
+        gap: 3.5rem;
+        padding-bottom: 3rem;
+      }
+    }
+
+    .hero-content {
+      color: var(--color-white);
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: rgba(24, 95, 165, 0.15);
+      border: 1px solid rgba(24, 95, 165, 0.3);
+      border-radius: 9999px;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      color: #93c5fd;
+      margin-bottom: 1.5rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .hero-badge span.pulse {
+      width: 6px;
+      height: 6px;
+      background-color: var(--color-green-light);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--color-green-light);
+      animation: pulse 1.8s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(0.9); opacity: 0.5; }
+      50% { transform: scale(1.2); opacity: 1; }
+      100% { transform: scale(0.9); opacity: 0.5; }
+    }
+
+    .hero-title {
+      font-size: 3.5rem;
+      font-weight: 800;
+      line-height: 1.08;
+      letter-spacing: -0.03em;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-title span.highlight {
+      background: linear-gradient(135deg, #60a5fa 0%, #1d4ed8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    @media (max-width: 768px) {
+      .hero-title {
+        font-size: 2.5rem;
+      }
+    }
+
+    .hero-description {
+      font-size: 1.125rem;
+      color: var(--color-gray-400);
+      margin-bottom: 2.5rem;
+      line-height: 1.6;
+      font-weight: 400;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 1.25rem;
+      flex-wrap: wrap;
+    }
+
+    /* Floating Dashboard Mockup Card */
+    .hero-mockup-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+
+    .mockup-card {
+      background: rgba(30, 41, 59, 0.45);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 16px;
+      padding: 1.5rem;
+      width: 100%;
+      max-width: 480px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5),
+                  0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+      animation: floatCard 6s ease-in-out infinite;
+      position: relative;
+      z-index: 5;
+    }
+
+    @keyframes floatCard {
+      0% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-10px) rotate(0.5deg); }
+      100% { transform: translateY(0px) rotate(0deg); }
+    }
+
+    .mockup-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.25rem;
+      padding-bottom: 0.75rem;
+      border-b: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .mockup-brand {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--color-primary-light);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .mockup-live {
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      color: var(--color-green-light);
+      background: rgba(34, 197, 94, 0.1);
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+    }
+
+    .mockup-live-dot {
+      width: 5px;
+      height: 5px;
+      background-color: var(--color-green-light);
+      border-radius: 50%;
+      animation: blink 1.2s infinite;
+    }
+
+    @keyframes blink {
+      0% { opacity: 0.3; }
+      50% { opacity: 1; }
+      100% { opacity: 0.3; }
+    }
+
+    /* Grid containing Donut and Gauge */
+    .mockup-metrics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .mockup-metric-box {
+      background: rgba(15, 23, 42, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      border-radius: 12px;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    .metric-label {
+      font-size: 0.6875rem;
+      font-weight: 600;
+      color: var(--color-gray-400);
+      margin-bottom: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* Donut Chart Styling */
+    .donut-container {
+      position: relative;
+      width: 72px;
+      height: 72px;
+    }
+
+    .donut-chart {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: conic-gradient(
+        var(--color-primary) 0% 25%,
+        #0d9488 25% 58%,
+        #4f46e5 58% 100%
+      );
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform: scale(0);
+      transition: transform 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) 0.5s;
+    }
+
+    .donut-chart.active {
+      transform: scale(1);
+    }
+
+    .donut-hole {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background-color: #1a2233; /* matching parent overlay box */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.625rem;
+      font-weight: 700;
+      color: var(--color-white);
+    }
+
+    /* Mockup Gauge */
+    .mockup-gauge-container {
+      width: 80px;
+      height: 48px;
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 0.25rem;
+    }
+
+    .mockup-gauge-score {
+      font-size: 0.9375rem;
+      font-weight: 700;
+      color: var(--color-red-light);
+      margin-top: 0.25rem;
+    }
+
+    .mockup-gauge-label {
+      font-size: 0.625rem;
+      font-weight: 500;
+      color: var(--color-red-light);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* Mini Table */
+    .mockup-table-container {
+      background: rgba(15, 23, 42, 0.2);
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.03);
+    }
+
+    .mockup-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.75rem;
+      text-align: left;
+    }
+
+    .mockup-table th {
+      color: var(--color-gray-400);
+      font-weight: 600;
+      padding: 0.625rem 0.75rem;
+      background: rgba(255, 255, 255, 0.02);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      text-transform: uppercase;
+      font-size: 0.625rem;
+      letter-spacing: 0.05em;
+    }
+
+    .mockup-table td {
+      padding: 0.625rem 0.75rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      color: var(--color-white);
+      font-weight: 500;
+    }
+
+    .mockup-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .mockup-table .ticker {
+      font-weight: 700;
+      color: #93c5fd;
+    }
+
+    .mockup-table .neg-return {
+      color: var(--color-red-light);
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 2px;
+    }
+
+    /* Floating blobs in background */
+    .hero-glow-1 {
+      position: absolute;
+      top: 10%;
+      right: -5%;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(24, 95, 165, 0.15) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .hero-glow-2 {
+      position: absolute;
+      bottom: -10%;
+      left: -10%;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(22, 163, 74, 0.06) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* ==========================================
+       STATS BAR
+       ========================================== */
+    .stats-bar {
+      background-color: var(--color-gray-50);
+      border-top: 1px solid var(--color-gray-200);
+      border-bottom: 1px solid var(--color-gray-200);
+      padding: 2.25rem 0;
+      position: relative;
+      z-index: 10;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      align-items: center;
+    }
+
+    @media (max-width: 768px) {
+      .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+        text-align: center;
+      }
+    }
+
+    .stats-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 0 1rem;
+      border-right: 1px solid var(--color-gray-200);
+    }
+
+    .stats-item:last-child {
+      border-right: none;
+    }
+
+    @media (max-width: 768px) {
+      .stats-item {
+        border-right: none;
+      }
+    }
+
+    .stats-val {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--color-navy-dark);
+      letter-spacing: -0.02em;
+      margin-bottom: 0.25rem;
+    }
+
+    .stats-label {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--color-gray-500);
+    }
+
+    /* ==========================================
+       FEATURES SECTION
+       ========================================== */
+    .features-section {
+      background-color: var(--color-white);
+    }
+
+    .section-header {
+      text-align: center;
+      max-width: 700px;
+      margin: 0 auto 5rem;
+    }
+
+    .section-tagline {
+      font-size: 0.8125rem;
+      font-weight: 700;
+      color: var(--color-primary);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.75rem;
+      display: block;
+    }
+
+    .section-title {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: var(--color-navy-dark);
+      margin-bottom: 1.25rem;
+    }
+
+    @media (max-width: 768px) {
+      .section-title {
+        font-size: 2rem;
+      }
+    }
+
+    .section-subtitle {
+      font-size: 1.125rem;
+      color: var(--color-gray-500);
+      font-weight: 400;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+    }
+
+    @media (max-width: 992px) {
+      .features-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 640px) {
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .feature-card {
+      background: var(--color-white);
+      border: 1px solid var(--color-gray-200);
+      border-radius: 14px;
+      padding: 2.25rem;
+      transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 30px rgba(15, 23, 42, 0.06);
+      border-color: rgba(24, 95, 165, 0.2);
+    }
+
+    .feature-icon-wrapper {
+      width: 48px;
+      height: 48px;
+      background-color: var(--color-gray-50);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      margin-bottom: 1.5rem;
+      border: 1px solid var(--color-gray-100);
+      transition: var(--transition-fast);
+    }
+
+    .feature-card:hover .feature-icon-wrapper {
+      background-color: rgba(24, 95, 165, 0.08);
+      border-color: rgba(24, 95, 165, 0.15);
+    }
+
+    .feature-title {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: var(--color-navy-dark);
+      margin-bottom: 0.75rem;
+    }
+
+    .feature-desc {
+      font-size: 0.875rem;
+      color: var(--color-gray-500);
+      line-height: 1.6;
+    }
+
+    /* ==========================================
+       HOW IT WORKS SECTION
+       ========================================== */
+    .how-it-works-section {
+      background-color: var(--color-gray-50);
+      border-top: 1px solid var(--color-gray-200);
+      border-bottom: 1px solid var(--color-gray-200);
+    }
+
+    .how-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.1fr;
+      gap: 5rem;
+      align-items: center;
+    }
+
+    @media (max-width: 992px) {
+      .how-grid {
+        grid-template-columns: 1fr;
+        gap: 3.5rem;
+      }
+    }
+
+    .how-left {
+      position: relative;
+    }
+
+    .steps-container {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 2.5rem;
+      margin-top: 2rem;
+    }
+
+    .steps-line {
+      position: absolute;
+      left: 20px;
+      top: 24px;
+      bottom: 24px;
+      width: 2px;
+      background-color: var(--color-gray-200);
+      z-index: 1;
+    }
+
+    .step-item {
+      display: flex;
+      gap: 1.5rem;
+      position: relative;
+      z-index: 2;
+      cursor: pointer;
+    }
+
+    .step-badge {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background-color: var(--color-white);
+      border: 2px solid var(--color-gray-300);
+      color: var(--color-gray-400);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.9375rem;
+      flex-shrink: 0;
+      transition: var(--transition-medium);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+    }
+
+    .step-item.active .step-badge {
+      background-color: var(--color-primary);
+      border-color: var(--color-primary);
+      color: var(--color-white);
+      box-shadow: 0 4px 10px rgba(24, 95, 165, 0.3);
+    }
+
+    .step-content {
+      padding-top: 0.375rem;
+    }
+
+    .step-title {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: var(--color-navy-dark);
+      margin-bottom: 0.5rem;
+      transition: var(--transition-fast);
+    }
+
+    .step-item.active .step-title {
+      color: var(--color-primary);
+    }
+
+    .step-desc {
+      font-size: 0.875rem;
+      color: var(--color-gray-500);
+      line-height: 1.6;
+    }
+
+    /* How It Works Right: Interactive Demo Panel */
+    .how-right {
+      display: flex;
+      justify-content: center;
+    }
+
+    .demo-panel {
+      background: var(--color-white);
+      border: 1px solid var(--color-gray-200);
+      border-radius: 16px;
+      box-shadow: 0 25px 40px -15px rgba(15, 23, 42, 0.08);
+      width: 100%;
+      max-width: 480px;
+      min-height: 420px;
+      padding: 1.75rem;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .demo-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--color-gray-100);
+    }
+
+    .demo-title {
+      font-size: 0.8125rem;
+      font-weight: 700;
+      color: var(--color-navy-light);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .demo-content-slot {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    /* Slide specific styles */
+    .demo-slide {
+      display: none;
+      animation: fadeIn 0.4s ease forwards;
+    }
+
+    .demo-slide.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Slide 1 - Add Holdings */
+    .ticker-input-group {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .demo-input {
+      padding: 0.625rem 0.875rem;
+      border: 1px solid var(--color-gray-200);
+      border-radius: 6px;
+      font-size: 0.875rem;
+      outline: none;
+      font-family: var(--font-sans);
+    }
+
+    .demo-input:focus {
+      border-color: var(--color-primary);
+    }
+
+    .demo-input-ticker { width: 40%; font-weight: 700; text-transform: uppercase; }
+    .demo-input-qty { width: 30%; }
+    .demo-input-price { width: 30%; }
+
+    .demo-add-btn {
+      width: 100%;
+      background-color: var(--color-navy-dark);
+      color: var(--color-white);
+      padding: 0.625rem;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-bottom: 1.25rem;
+    }
+
+    .demo-add-btn:hover {
+      background-color: var(--color-navy-medium);
+    }
+
+    .demo-holdings-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      max-height: 180px;
+      overflow-y: auto;
+    }
+
+    .demo-holding-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.625rem 0.875rem;
+      background: var(--color-gray-50);
+      border: 1px solid var(--color-gray-200);
+      border-radius: 6px;
+      font-size: 0.8125rem;
+    }
+
+    .demo-holding-ticker {
+      font-weight: 700;
+      color: var(--color-navy-dark);
+    }
+
+    .demo-holding-details {
+      color: var(--color-gray-500);
+    }
+
+    .demo-action-row {
+      margin-top: 1.5rem;
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    /* Slide 2 - Instant Analysis */
+    .analysis-score-container {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      margin-bottom: 1.5rem;
+      padding: 1rem;
+      background: rgba(24, 95, 165, 0.05);
+      border: 1px solid rgba(24, 95, 165, 0.1);
+      border-radius: 8px;
+    }
+
+    .analysis-score-large {
+      font-size: 2.25rem;
+      font-weight: 800;
+      color: var(--color-primary);
+    }
+
+    .analysis-score-meta {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .analysis-score-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--color-gray-500);
+      text-transform: uppercase;
+    }
+
+    .analysis-score-desc {
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: var(--color-navy-dark);
+    }
+
+    .analysis-metrics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .analysis-metric-item {
+      border: 1px solid var(--color-gray-100);
+      padding: 0.75rem;
+      border-radius: 6px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .analysis-metric-name {
+      font-size: 0.6875rem;
+      color: var(--color-gray-500);
+      text-transform: uppercase;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    .analysis-metric-val {
+      font-size: 0.9375rem;
+      font-weight: 700;
+      color: var(--color-navy-dark);
+    }
+
+    .analysis-metric-val.green { color: var(--color-green); }
+
+    /* Slide 3 - What-if Rebalance */
+    .simulator-card {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .simulator-sharpe-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.875rem;
+      background: var(--color-navy-dark);
+      color: var(--color-white);
+      border-radius: 8px;
+    }
+
+    .sim-sharpe-num {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #60a5fa;
+      transition: color var(--transition-fast);
+    }
+
+    .sim-slider-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.875rem;
+    }
+
+    .sim-slider-row {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .sim-slider-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--color-navy-medium);
+    }
+
+    .sim-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 6px;
+      border-radius: 3px;
+      background: var(--color-gray-200);
+      outline: none;
+    }
+
+    .sim-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--color-primary);
+      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+      transition: background-color var(--transition-fast);
+    }
+
+    .sim-slider::-webkit-slider-thumb:hover {
+      background: var(--color-primary-light);
+    }
+
+    .advisor-tip-box {
+      font-size: 0.75rem;
+      color: var(--color-primary);
+      background: rgba(24, 95, 165, 0.05);
+      border: 1px dashed rgba(24, 95, 165, 0.2);
+      padding: 0.625rem 0.875rem;
+      border-radius: 6px;
+      display: flex;
+      gap: 0.375rem;
+      align-items: flex-start;
+      margin-top: 0.5rem;
+    }
+
+    /* ==========================================
+       RISK SCORE SHOWCASE SECTION
+       ========================================== */
+    .risk-showcase-section {
+      background-color: var(--color-navy-dark);
+      color: var(--color-white);
+    }
+
+    .risk-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6rem;
+      align-items: center;
+    }
+
+    @media (max-width: 992px) {
+      .risk-grid {
+        grid-template-columns: 1fr;
+        gap: 4rem;
+      }
+    }
+
+    .risk-left {
+      max-width: 500px;
+    }
+
+    .risk-title {
+      font-size: 3rem;
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 768px) {
+      .risk-title {
+        font-size: 2.25rem;
+      }
+    }
+
+    .risk-desc {
+      font-size: 1.125rem;
+      color: var(--color-gray-400);
+      line-height: 1.6;
+      margin-bottom: 2rem;
+    }
+
+    /* SVG Gauge Right Column */
+    .risk-right {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .gauge-wrapper {
+      width: 100%;
+      max-width: 320px;
+      position: relative;
+    }
+
+    .gauge-svg {
+      width: 100%;
+      height: auto;
+    }
+
+    /* Styling needle paths */
+    .gauge-needle {
+      transform: rotate(-90deg); /* Starts at 0 */
+      transform-origin: 100px 110px;
+      transition: transform 2.2s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+
+    .gauge-score-value {
+      font-size: 2.25rem;
+      font-weight: 800;
+      color: var(--color-white);
+      margin-top: 1rem;
+      text-align: center;
+    }
+
+    .gauge-score-label {
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: var(--color-amber-light);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      text-align: center;
+      margin-top: 0.25rem;
+      opacity: 0;
+      transform: translateY(5px);
+      transition: opacity 0.8s ease 1s, transform 0.8s ease 1s;
+    }
+
+    .gauge-score-label.active {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Component Progress Bars */
+    .risk-components {
+      width: 100%;
+      max-width: 500px;
+      margin-top: 3.5rem;
+      grid-column: span 2;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+    }
+
+    @media (max-width: 768px) {
+      .risk-components {
+        grid-column: span 1;
+        grid-template-columns: 1fr;
+        margin-top: 2rem;
+      }
+    }
+
+    .component-bar-container {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .component-label-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--color-gray-300);
+    }
+
+    .component-bar-bg {
+      width: 100%;
+      height: 8px;
+      background: var(--color-navy-medium);
+      border-radius: 4px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .component-bar-fill {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 0%;
+      border-radius: 4px;
+      background-color: var(--color-primary);
+      transition: width 1.8s cubic-bezier(0.1, 0.8, 0.2, 1);
+    }
+
+    .component-bar-fill.fill-green { background-color: var(--color-green-light); }
+    .component-bar-fill.fill-amber { background-color: var(--color-amber-light); }
+    
+    /* ==========================================
+       SOCIAL PROOF / CREDIBILITY BAR
+       ========================================== */
+    .social-proof-bar {
+      background-color: var(--color-gray-50);
+      border-top: 1px solid var(--color-gray-200);
+      border-bottom: 1px solid var(--color-gray-200);
+      padding: 3rem 0;
+    }
+
+    .social-proof-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--color-gray-400);
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .social-proof-grid {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 2.5rem;
+    }
+
+    @media (max-width: 768px) {
+      .social-proof-grid {
+        justify-content: center;
+        gap: 2rem;
+      }
+    }
+
+    .social-badge {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--color-gray-400);
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      filter: grayscale(1);
+      opacity: 0.6;
+      transition: var(--transition-fast);
+    }
+
+    .social-badge:hover {
+      filter: grayscale(0);
+      opacity: 1;
+      color: var(--color-navy-dark);
+    }
+
+    .social-badge svg {
+      width: 20px;
+      height: 20px;
+      fill: currentColor;
+    }
+
+    /* ==========================================
+       FINAL CTA SECTION
+       ========================================== */
+    .final-cta-section {
+      background-color: var(--color-navy-medium);
+      color: var(--color-white);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .final-cta-glow {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(24, 95, 165, 0.15) 0%, transparent 60%);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .final-cta-content {
+      position: relative;
+      z-index: 2;
+      max-width: 650px;
+      margin: 0 auto;
+    }
+
+    .final-cta-title {
+      font-size: 3rem;
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 1.25rem;
+    }
+
+    @media (max-width: 768px) {
+      .final-cta-title {
+        font-size: 2.25rem;
+      }
+    }
+
+    .final-cta-btn-wrapper {
+      margin-bottom: 1.5rem;
+    }
+
+    .final-cta-sub {
+      font-size: 0.875rem;
+      color: var(--color-gray-400);
+    }
+
+    /* ==========================================
+       FOOTER
+       ========================================== */
+    footer {
+      background-color: var(--color-navy-dark);
+      color: var(--color-gray-400);
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      padding: 4rem 0;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr 1.5fr;
+      gap: 3rem;
+    }
+
+    @media (max-width: 768px) {
+      .footer-grid {
+        grid-template-columns: 1fr;
+        gap: 2.5rem;
+        text-align: center;
+      }
+    }
+
+    .footer-brand {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .footer-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    header.scrolled .footer-logo .logo-icon, footer .logo-icon {
+      fill: var(--color-primary);
+    }
+
+    .footer-logo-text {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--color-white);
+    }
+
+    .footer-desc {
+      font-size: 0.875rem;
+      line-height: 1.6;
+    }
+
+    .footer-links-col {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .footer-links-title {
+      font-size: 0.8125rem;
+      font-weight: 700;
+      color: var(--color-white);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .footer-links {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      list-style: none;
+    }
+
+    .footer-links a {
+      font-size: 0.875rem;
+      color: var(--color-gray-400);
+    }
+
+    .footer-links a:hover {
+      color: var(--color-white);
+    }
+
+    .footer-right {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+
+    @media (max-width: 768px) {
+      .footer-right {
+        align-items: center;
+        gap: 1.5rem;
+      }
+    }
+
+    .footer-credits {
+      font-size: 0.8125rem;
+      text-align: right;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 768px) {
+      .footer-credits {
+        text-align: center;
+      }
+    }
+
+    .footer-credits span.accent {
+      color: var(--color-white);
+      font-weight: 500;
+    }
+
+    .footer-copyright {
+      font-size: 0.75rem;
+      color: var(--color-gray-500);
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==========================================
+       STICKY NAVBAR
+       ========================================== -->
+  <header id="header">
+    <div class="container nav-container">
+      <a href="#hero" class="logo-container">
+        <svg class="logo-icon" viewBox="0 0 24 24">
+          <path d="M4 18h3V8H4v10zm5 0h3V5H9v13zm5 0h3v-7h-3v7zm5 0h3v-4h-3v4z"/>
+        </svg>
+        <span class="logo-text">Quantfolio</span>
+      </a>
+      
+      <ul class="nav-links">
+        <li><a href="#features">Features</a></li>
+        <li><a href="#how-it-works">How It Works</a></li>
+        <li><a href="#risk-analysis">Risk Score</a></li>
+      </ul>
+
+      <div class="nav-cta">
+        <a href="#login" class="nav-cta-btn ghost">Log In</a>
+        <a href="#register" class="nav-cta-btn primary">Get started free</a>
+      </div>
+
+      <button class="mobile-menu-btn" id="mobile-toggle" aria-label="Toggle Menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Mobile Menu Overlay -->
+  <div class="mobile-overlay" id="mobile-menu">
+    <ul class="nav-links">
+      <li><a href="#features" onclick="toggleMobileMenu()">Features</a></li>
+      <li><a href="#how-it-works" onclick="toggleMobileMenu()">How It Works</a></li>
+      <li><a href="#risk-analysis" onclick="toggleMobileMenu()">Risk Score</a></li>
+    </ul>
+    <div class="nav-cta">
+      <a href="#login" class="nav-cta-btn ghost" onclick="toggleMobileMenu()">Log In</a>
+      <a href="#register" class="nav-cta-btn primary" onclick="toggleMobileMenu()">Get started free</a>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       HERO SECTION
+       ========================================== -->
+  <section id="hero" class="hero-section">
+    <canvas id="hero-particles"></canvas>
+    <div class="hero-glow-1"></div>
+    <div class="hero-glow-2"></div>
+    
+    <div class="container hero-grid">
+      <div class="hero-content">
+        <div class="hero-badge">
+          <span class="pulse"></span>
+          AI-powered portfolio intelligence
+        </div>
+        <h1 class="hero-title">
+          Your portfolio.<br/>
+          <span class="highlight">Analysed like a fund manager.</span>
+        </h1>
+        <p class="hero-description">
+          Real-time P&L, AI-driven risk scoring, news sentiment, and what-if simulations — all in one platform built for Indian markets.
+        </p>
+        <div class="hero-actions">
+          <a href="#register" class="btn btn-primary">Get started free</a>
+          <a href="#how-it-works" class="btn btn-secondary">See how it works</a>
+        </div>
+      </div>
+
+      <div class="hero-mockup-container">
+        <!-- Dashboard Mockup Card (Pure HTML/CSS) -->
+        <div class="mockup-card">
+          <div class="mockup-header">
+            <span class="mockup-brand">Quantfolio Node</span>
+            <div class="mockup-live">
+              <span class="mockup-live-dot"></span>
+              Live NSE feed
+            </div>
+          </div>
+          
+          <div class="mockup-metrics-grid">
+            <!-- Allocation Donut -->
+            <div class="mockup-metric-box">
+              <span class="metric-label">Allocation</span>
+              <div class="donut-container">
+                <div class="donut-chart" id="hero-donut">
+                  <div class="donut-hole">3 Assets</div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Risk Score Gauge -->
+            <div class="mockup-metric-box">
+              <span class="metric-label">Risk Rating</span>
+              <div class="mockup-gauge-container">
+                <!-- Mini Gauge SVG -->
+                <svg viewBox="0 0 100 60" style="width:100%; height:auto;">
+                  <defs>
+                    <linearGradient id="mini-gauge-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" stop-color="#16a34a" />
+                      <stop offset="50%" stop-color="#eab308" />
+                      <stop offset="100%" stop-color="#dc2626" />
+                    </linearGradient>
+                  </defs>
+                  <path d="M10 50 A40 40 0 0 1 90 50" fill="none" stroke="#334155" stroke-width="8" stroke-linecap="round"/>
+                  <path d="M10 50 A40 40 0 0 1 90 50" fill="none" stroke="url(#mini-gauge-grad)" stroke-width="8" stroke-linecap="round" stroke-dasharray="126" stroke-dashoffset="126" id="hero-gauge-track"/>
+                  <!-- Mini needle -->
+                  <polygon points="49,50 50,12 51,50" fill="#f8fafc" id="hero-gauge-needle" style="transform: rotate(-90deg); transform-origin: 50px 50px; transition: transform 2s cubic-bezier(0.25, 1, 0.5, 1);"/>
+                  <circle cx="50" cy="50" r="3" fill="#cbd5e1" />
+                </svg>
+              </div>
+              <span class="mockup-gauge-score" id="hero-gauge-score">0.0</span>
+              <span class="mockup-gauge-label">High Risk</span>
+            </div>
+          </div>
+
+          <!-- Mini Portfolio Table -->
+          <div class="mockup-table-container">
+            <table class="mockup-table">
+              <thead>
+                <tr>
+                  <th>Ticker</th>
+                  <th>Weight</th>
+                  <th style="text-align: right;">Return (1Y)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="ticker">INFY</td>
+                  <td>25%</td>
+                  <td style="text-align: right;"><span class="neg-return">↓ -18.1%</span></td>
+                </tr>
+                <tr>
+                  <td class="ticker">TCS</td>
+                  <td>33%</td>
+                  <td style="text-align: right;"><span class="neg-return">↓ -43.4%</span></td>
+                </tr>
+                <tr>
+                  <td class="ticker">HDFCBANK</td>
+                  <td>42%</td>
+                  <td style="text-align: right;"><span class="neg-return">↓ -53.5%</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================
+       STATS BAR
+       ========================================== -->
+  <div class="stats-bar">
+    <div class="container stats-grid">
+      <div class="stats-item">
+        <span class="stats-val">6 months</span>
+        <span class="stats-label">of NSE data</span>
+      </div>
+      <div class="stats-item">
+        <span class="stats-val">5 risk metrics</span>
+        <span class="stats-label">computed</span>
+      </div>
+      <div class="stats-item">
+        <span class="stats-val">Real-time</span>
+        <span class="stats-label">NIFTY 50 benchmark</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       FEATURES SECTION
+       ========================================== -->
+  <section id="features" class="features-section section-padding">
+    <div class="container">
+      <div class="section-header fade-up">
+        <span class="section-tagline">Comprehensive Analytics</span>
+        <h2 class="section-title">Everything a fund manager uses. Built for you.</h2>
+        <p class="section-subtitle">Professional-grade indicators simplified into actionable insights, helping you navigate market volatility.</p>
+      </div>
+
+      <div class="features-grid">
+        <!-- Feature 1 -->
+        <div class="feature-card fade-up delay-1">
+          <div class="feature-icon-wrapper">📊</div>
+          <h3 class="feature-title">Live P&L Tracking</h3>
+          <p class="feature-desc">Real NSE prices. See your actual gains and losses updated live with zero lag.</p>
+        </div>
+        <!-- Feature 2 -->
+        <div class="feature-card fade-up delay-2">
+          <div class="feature-icon-wrapper">🎯</div>
+          <h3 class="feature-title">Portfolio Risk Score</h3>
+          <p class="feature-desc">A single 0-100 score built from Sharpe ratio, beta, VaR, and sector concentration metrics.</p>
+        </div>
+        <!-- Feature 3 -->
+        <div class="feature-card fade-up delay-3">
+          <div class="feature-icon-wrapper">🤖</div>
+          <h3 class="feature-title">AI Advisor</h3>
+          <p class="feature-desc">Get 3 personalised rebalancing recommendations based on your actual holdings and goals.</p>
+        </div>
+        <!-- Feature 4 -->
+        <div class="feature-card fade-up delay-1">
+          <div class="feature-icon-wrapper">📰</div>
+          <h3 class="feature-title">News Sentiment</h3>
+          <p class="feature-desc">Latest headlines for every holding, automatically scored positive or negative by Gemini.</p>
+        </div>
+        <!-- Feature 5 -->
+        <div class="feature-card fade-up delay-2">
+          <div class="feature-icon-wrapper">🔄</div>
+          <h3 class="feature-title">What-if Simulator</h3>
+          <p class="feature-desc">Drag sliders to rebalance and instantly see how Sharpe ratio changes before submitting trades.</p>
+        </div>
+        <!-- Feature 6 -->
+        <div class="feature-card fade-up delay-3">
+          <div class="feature-icon-wrapper">🏆</div>
+          <h3 class="feature-title">vs NIFTY 50</h3>
+          <p class="feature-desc">See your alpha. Plot your portfolio performance against India's benchmark index.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================
+       HOW IT WORKS SECTION
+       ========================================== -->
+  <section id="how-it-works" class="how-it-works-section section-padding">
+    <div class="container">
+      <div class="section-header fade-up">
+        <span class="section-tagline">Seamless Workflow</span>
+        <h2 class="section-title">Analyse your holdings in seconds</h2>
+        <p class="section-subtitle">No broker connection required. Maintain complete privacy over your financial data.</p>
+      </div>
+
+      <div class="how-grid">
+        <div class="how-left fade-up">
+          <div class="steps-container">
+            <div class="steps-line"></div>
+            
+            <div class="step-item active" data-step="1">
+              <div class="step-badge">1</div>
+              <div class="step-content">
+                <h3 class="step-title">Add your holdings</h3>
+                <p class="step-desc">Enter ticker symbols (e.g. RELIANCE, TCS), quantities, and average buy price securely.</p>
+              </div>
+            </div>
+
+            <div class="step-item" data-step="2">
+              <div class="step-badge">2</div>
+              <div class="step-content">
+                <h3 class="step-title">Get instant analysis</h3>
+                <p class="step-desc">AI computes risk score, Sharpe ratio, Value-at-Risk (VaR), and sector concentrations.</p>
+              </div>
+            </div>
+
+            <div class="step-item" data-step="3">
+              <div class="step-badge">3</div>
+              <div class="step-content">
+                <h3 class="step-title">Make smarter decisions</h3>
+                <p class="step-desc">Use the interactive what-if simulator and AI advice to optimize and rebalance weights.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="how-right fade-up delay-2">
+          <!-- Dynamic Demo Panel -->
+          <div class="demo-panel">
+            <div class="demo-header">
+              <span class="demo-title" id="demo-panel-title">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="var(--color-primary)">
+                  <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                </svg>
+                Step 1: Input holdings
+              </span>
+              <span class="mockup-live">Live Simulator</span>
+            </div>
+            
+            <div class="demo-content-slot">
+              <!-- Slide 1 Content -->
+              <div class="demo-slide active" id="slide-1">
+                <div class="ticker-input-group">
+                  <input type="text" class="demo-input demo-input-ticker" placeholder="RELIANCE" value="INFY" id="demo-inp-tick"/>
+                  <input type="number" class="demo-input demo-input-qty" placeholder="Qty" value="10" id="demo-inp-qty"/>
+                  <input type="number" class="demo-input demo-input-price" placeholder="Price" value="1420" id="demo-inp-price"/>
+                </div>
+                <button class="demo-add-btn" onclick="addDemoHolding()">Add to Portfolio</button>
+                
+                <div class="demo-holdings-list" id="demo-holdings-list">
+                  <div class="demo-holding-row">
+                    <span class="demo-holding-ticker">INFY</span>
+                    <span class="demo-holding-details">10 shares @ ₹1420</span>
+                  </div>
+                  <div class="demo-holding-row">
+                    <span class="demo-holding-ticker">TCS</span>
+                    <span class="demo-holding-details">15 shares @ ₹3850</span>
+                  </div>
+                </div>
+                
+                <div class="demo-action-row">
+                  <button class="btn btn-dark" style="padding: 0.5rem 1rem; font-size: 0.8125rem;" onclick="goToDemoStep(2)">Analyze Portfolio →</button>
+                </div>
+              </div>
+
+              <!-- Slide 2 Content -->
+              <div class="demo-slide" id="slide-2">
+                <div class="analysis-score-container">
+                  <span class="analysis-score-large">36.3</span>
+                  <div class="analysis-score-meta">
+                    <span class="analysis-score-label">Risk Scoring</span>
+                    <span class="analysis-score-desc" style="color: var(--color-red);">High Portfolio Risk</span>
+                  </div>
+                </div>
+                
+                <div class="analysis-metrics-grid">
+                  <div class="analysis-metric-item">
+                    <span class="analysis-metric-name">Sharpe Ratio</span>
+                    <span class="analysis-metric-val">1.12</span>
+                  </div>
+                  <div class="analysis-metric-item">
+                    <span class="analysis-metric-name">Portfolio Beta</span>
+                    <span class="analysis-metric-val">1.28</span>
+                  </div>
+                  <div class="analysis-metric-item">
+                    <span class="analysis-metric-name">Diversification</span>
+                    <span class="analysis-metric-val" style="color: var(--color-red);">Concentrated</span>
+                  </div>
+                  <div class="analysis-metric-item">
+                    <span class="analysis-metric-name">Estimated VaR</span>
+                    <span class="analysis-metric-val">₹4,250</span>
+                  </div>
+                </div>
+                
+                <div class="demo-action-row" style="justify-content: space-between;">
+                  <button class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.8125rem; color: var(--color-navy-dark); border-color: var(--color-gray-300);" onclick="goToDemoStep(1)">← Back</button>
+                  <button class="btn btn-dark" style="padding: 0.5rem 1rem; font-size: 0.8125rem;" onclick="goToDemoStep(3)">Rebalance Simulation →</button>
+                </div>
+              </div>
+
+              <!-- Slide 3 Content -->
+              <div class="demo-slide" id="slide-3">
+                <div class="simulator-card">
+                  <div class="simulator-sharpe-row">
+                    <span>Simulated Sharpe Ratio</span>
+                    <span class="sim-sharpe-num" id="sim-sharpe-val">1.12</span>
+                  </div>
+                  
+                  <div class="sim-slider-group">
+                    <div class="sim-slider-row">
+                      <div class="sim-slider-label">
+                        <span>INFY (IT)</span>
+                        <span id="slider-infy-val">25%</span>
+                      </div>
+                      <input type="range" min="0" max="100" value="25" class="sim-slider" id="slider-infy" oninput="updateSimulation()"/>
+                    </div>
+                    <div class="sim-slider-row">
+                      <div class="sim-slider-label">
+                        <span>TCS (IT)</span>
+                        <span id="slider-tcs-val">33%</span>
+                      </div>
+                      <input type="range" min="0" max="100" value="33" class="sim-slider" id="slider-tcs" oninput="updateSimulation()"/>
+                    </div>
+                    <div class="sim-slider-row">
+                      <div class="sim-slider-label">
+                        <span>HDFCBANK (Financials)</span>
+                        <span id="slider-hdfc-val">42%</span>
+                      </div>
+                      <input type="range" min="0" max="100" value="42" class="sim-slider" id="slider-hdfc" oninput="updateSimulation()"/>
+                    </div>
+                  </div>
+
+                  <div class="advisor-tip-box">
+                    <span style="font-weight: 700;">💡 AI Rebalancing Tip:</span>
+                    <span>IT sector concentration is 58%. Increase allocation to HDFCBANK to optimize Sharpe to 1.78.</span>
+                  </div>
+                </div>
+                
+                <div class="demo-action-row" style="justify-content: flex-start; margin-top: 1rem;">
+                  <button class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.8125rem; color: var(--color-navy-dark); border-color: var(--color-gray-300);" onclick="goToDemoStep(2)">← Back</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================
+       RISK SCORE SHOWCASE SECTION
+       ========================================== -->
+  <section id="risk-analysis" class="risk-showcase-section section-padding">
+    <div class="container">
+      <div class="risk-grid">
+        <div class="risk-left fade-up">
+          <span class="section-tagline" style="color: var(--color-primary-light);">Deep Risk Intelligence</span>
+          <h2 class="risk-title">Know your risk.<br/>Before the market tells you.</h2>
+          <p class="risk-desc">
+            Quantfolio runs historical covariance matrix mathematics and monte-carlo scenarios against your holdings to calculate real structural risks.
+          </p>
+          <a href="#register" class="btn btn-primary">Start analysing free</a>
+        </div>
+
+        <div class="risk-right fade-up delay-2">
+          <div class="gauge-wrapper">
+            <!-- Animated SVG Gauge -->
+            <svg class="gauge-svg" viewBox="0 0 200 120">
+              <defs>
+                <linearGradient id="gauge-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#16a34a" />
+                  <stop offset="35%" stop-color="#22c55e" />
+                  <stop offset="70%" stop-color="#eab308" />
+                  <stop offset="100%" stop-color="#dc2626" />
+                </linearGradient>
+              </defs>
+              <!-- Base Track -->
+              <path d="M 20 110 A 80 80 0 0 1 180 110" fill="none" stroke="#1e293b" stroke-width="12" stroke-linecap="round"/>
+              <!-- Active Colored Arc -->
+              <path d="M 20 110 A 80 80 0 0 1 180 110" fill="none" stroke="url(#gauge-gradient)" stroke-width="12" stroke-linecap="round" stroke-dasharray="251" stroke-dashoffset="251" id="showcase-gauge-track" style="transition: stroke-dashoffset 2.2s cubic-bezier(0.25, 1, 0.5, 1);"/>
+              
+              <!-- Scale Markers -->
+              <text x="18" y="118" fill="#64748b" font-size="7" font-weight="600" text-anchor="middle">0</text>
+              <text x="100" y="22" fill="#64748b" font-size="7" font-weight="600" text-anchor="middle">50</text>
+              <text x="182" y="118" fill="#64748b" font-size="7" font-weight="600" text-anchor="middle">100</text>
+
+              <!-- Needle Pointer -->
+              <g class="gauge-needle" id="showcase-needle">
+                <polygon points="97,110 100,24 103,110" fill="#f8fafc" />
+                <circle cx="100" cy="110" r="6" fill="#cbd5e1" />
+                <circle cx="100" cy="110" r="2" fill="#0f172a" />
+              </g>
+            </svg>
+            
+            <div class="gauge-score-value" id="showcase-score-val">0</div>
+            <div class="gauge-score-label" id="showcase-score-label">Moderate Risk</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Component Bars Row -->
+      <div class="risk-components">
+        <div class="component-bar-container">
+          <div class="component-label-row">
+            <span>Sharpe Ratio Quality</span>
+            <span class="component-pct-val" data-target="85">0%</span>
+          </div>
+          <div class="component-bar-bg">
+            <div class="component-bar-fill fill-green" data-width="85"></div>
+          </div>
+        </div>
+
+        <div class="component-bar-container">
+          <div class="component-label-row">
+            <span>Volatility Suppression</span>
+            <span class="component-pct-val" data-target="42">0%</span>
+          </div>
+          <div class="component-bar-bg">
+            <div class="component-bar-fill fill-green" data-width="42"></div>
+          </div>
+        </div>
+
+        <div class="component-bar-container">
+          <div class="component-label-row">
+            <span>Diversification Index</span>
+            <span class="component-pct-val" data-target="78">0%</span>
+          </div>
+          <div class="component-bar-bg">
+            <div class="component-bar-fill fill-green" data-width="78"></div>
+          </div>
+        </div>
+
+        <div class="component-bar-container">
+          <div class="component-label-row">
+            <span>Sector Balance</span>
+            <span class="component-pct-val" data-target="60">0%</span>
+          </div>
+          <div class="component-bar-bg">
+            <div class="component-bar-fill fill-amber" data-width="60"></div>
+          </div>
+        </div>
+
+        <div class="component-bar-container">
+          <div class="component-label-row">
+            <span>Market Sensitivity (Beta)</span>
+            <span class="component-pct-val" data-target="68">0%</span>
+          </div>
+          <div class="component-bar-bg">
+            <div class="component-bar-fill fill-amber" data-width="68"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================
+       SOCIAL PROOF / CREDIBILITY BAR
+       ========================================== -->
+  <section class="social-proof-bar">
+    <div class="container">
+      <div class="social-proof-title">Built with industry-grade infrastructure</div>
+      <div class="social-proof-grid">
+        <div class="social-badge">
+          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+          FastAPI
+        </div>
+        <div class="social-badge">
+          <svg viewBox="0 0 24 24"><path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm4.3 14.3c-.39.39-1.02.39-1.41 0L12 13.41 9.11 16.3c-.39.39-1.02.39-1.41 0a.995.995 0 0 1 0-1.41L10.59 12 7.7 9.11a.995.995 0 0 1 0-1.41c.39-.39 1.02-.39 1.41 0L12 10.59l2.89-2.89c.39-.39 1.02-.39 1.41 0 .39.39.39 1.02 0 1.41L13.41 12l2.89 2.89c.38.38.38 1.02 0 1.4z"/></svg>
+          React
+        </div>
+        <div class="social-badge">
+          <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>
+          PostgreSQL
+        </div>
+        <div class="social-badge">
+          <svg viewBox="0 0 24 24"><path d="M21 10.12h-6.78l2.74-2.82c-2.73-2.7-7.15-2.67-9.84.1-2.68 2.76-2.68 7.21 0 9.98 2.69 2.77 7.11 2.8 9.84.1 1.56-1.54 2.27-3.53 2.13-5.5h3c.17 2.74-.75 5.51-2.78 7.55-3.89 4-10.17 4.02-14.09.05-3.9-3.97-3.9-10.43 0-14.4C9.28 1.15 15.55 1.12 19.46 5.1L21 3.5v6.62z"/></svg>
+          Yahoo Finance
+        </div>
+        <div class="social-badge">
+          <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-1 14H5c-.55 0-1-.45-1-1V8c0-.55.45-1 1-1h14c.55 0 1 .45 1 1v9c0 .55-.45 1-1 1z"/></svg>
+          NewsAPI
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================
+       FINAL CTA SECTION
+       ========================================== -->
+  <section class="final-cta-section section-padding">
+    <div class="final-cta-glow"></div>
+    <div class="container final-cta-content fade-up">
+      <h2 class="final-cta-title">Start tracking your portfolio in 2 minutes.</h2>
+      <div class="final-cta-btn-wrapper">
+        <a href="#register" class="btn btn-primary" style="background-color: var(--color-white); color: var(--color-primary); box-shadow: 0 10px 20px rgba(0,0,0,0.15);">Create free account →</a>
+      </div>
+      <p class="final-cta-sub">No credit card. No broker access needed. Just your holdings.</p>
+    </div>
+  </section>
+
+  <!-- ==========================================
+       FOOTER
+       ========================================== -->
+  <footer>
+    <div class="container footer-grid">
+      <div class="footer-brand">
+        <a href="#hero" class="footer-logo">
+          <svg class="logo-icon" viewBox="0 0 24 24">
+            <path d="M4 18h3V8H4v10zm5 0h3V5H9v13zm5 0h3v-7h-3v7zm5 0h3v-4h-3v4z"/>
+          </svg>
+          <span class="footer-logo-text">Quantfolio</span>
+        </a>
+        <p class="footer-desc">
+          High-performance analytics built for modern Indian retail investors. Make data-backed investment decisions with confidence.
+        </p>
+      </div>
+
+      <div class="footer-links-col">
+        <span class="footer-links-title">Features</span>
+        <ul class="footer-links">
+          <li><a href="#features">Risk Score</a></li>
+          <li><a href="#features">What-if Simulator</a></li>
+          <li><a href="#features">AI Advisor</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-right">
+        <div class="footer-credits">
+          by <span class="accent">Preetha Arul</span>
+        </div>
+        <div class="footer-copyright">
+          &copy; 2026 Quantfolio. All rights reserved.
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ==========================================
+       JAVASCRIPT INTERACTIONS & ANIMATIONS
+       ========================================== -->
+  <script>
+    /* ==========================================
+       MOBILE MENU OVERLAY
+       ========================================== */
+    const mobileToggle = document.getElementById('mobile-toggle');
+    const mobileMenu = document.getElementById('mobile-menu');
+    
+    function toggleMobileMenu() {
+      mobileMenu.classList.toggle('active');
+      mobileToggle.classList.toggle('active');
+      document.body.style.overflow = mobileMenu.classList.contains('active') ? 'hidden' : '';
+    }
+
+    mobileToggle.addEventListener('click', toggleMobileMenu);
+
+    /* ==========================================
+       SCROLL-TRIGGERED NAVBAR CHANGE
+       ========================================== */
+    const headerElement = document.getElementById('header');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 50) {
+        headerElement.classList.add('scrolled');
+      } else {
+        headerElement.classList.remove('scrolled');
+      }
+    });
+
+    /* ==========================================
+       HERO CANVAS PARTICLES ANIMATION
+       ========================================== */
+    const canvas = document.getElementById('hero-particles');
+    const ctx = canvas.getContext('2d');
+    let particlesArray = [];
+    
+    function setCanvasSize() {
+      canvas.width = canvas.parentElement.clientWidth;
+      canvas.height = canvas.parentElement.clientHeight;
+    }
+    
+    window.addEventListener('resize', () => {
+      setCanvasSize();
+    });
+    setCanvasSize();
+
+    class Particle {
+      constructor() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height + canvas.height;
+        this.size = Math.random() * 2.5 + 0.5;
+        this.speedY = -(Math.random() * 0.4 + 0.15);
+        this.speedX = (Math.random() * 0.2 - 0.1);
+        this.alpha = Math.random() * 0.5 + 0.1;
+      }
+      update() {
+        this.y += this.speedY;
+        this.x += this.speedX;
+        
+        // Reset when moving off screen
+        if (this.y < 0) {
+          this.y = canvas.height;
+          this.x = Math.random() * canvas.width;
+        }
+      }
+      draw() {
+        ctx.fillStyle = `rgba(96, 165, 250, ${this.alpha})`;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    function initParticles() {
+      const numberOfParticles = Math.min(Math.floor(canvas.width / 15), 80);
+      particlesArray = [];
+      for (let i = 0; i < numberOfParticles; i++) {
+        particlesArray.push(new Particle());
+      }
+    }
+    
+    initParticles();
+
+    function animateParticles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (let i = 0; i < particlesArray.length; i++) {
+        particlesArray[i].update();
+        particlesArray[i].draw();
+      }
+      requestAnimationFrame(animateParticles);
+    }
+    
+    animateParticles();
+
+    /* ==========================================
+       HERO MOCKUP LOAD ANIMATION (ON LOAD)
+       ========================================== */
+    // Helper: Number Counter Animation
+    function animateCounter(el, targetVal, duration, decimals = 1, suffix = '') {
+      let startVal = 0;
+      let startTimestamp = null;
+      
+      const step = (timestamp) => {
+        if (!startTimestamp) startTimestamp = timestamp;
+        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+        const currentVal = startVal + progress * (targetVal - startVal);
+        el.textContent = currentVal.toFixed(decimals) + suffix;
+        if (progress < 1) {
+          window.requestAnimationFrame(step);
+        }
+      };
+      
+      window.requestAnimationFrame(step);
+    }
+
+    window.addEventListener('load', () => {
+      // 1. Donut chart scale animation trigger
+      const donut = document.getElementById('hero-donut');
+      setTimeout(() => donut.classList.add('active'), 200);
+
+      // 2. Mockup gauge progress & needle sweep
+      const gaugeTrack = document.getElementById('hero-gauge-track');
+      const gaugeNeedle = document.getElementById('hero-gauge-needle');
+      const scoreValue = document.getElementById('hero-gauge-score');
+      
+      // Target: 36.3 Risk Score (out of 100)
+      // Arc length is ~126px. 36.3% of 126 is ~45.7px offset to substract from 126.
+      // Offset = 126 - (36.3/100 * 126) = 80.26
+      setTimeout(() => {
+        gaugeTrack.style.strokeDashoffset = "80.26";
+        
+        // Needle Rotation: Range is -90deg to +90deg (total 180deg).
+        // Angle = -90 + (36.3 * 1.8) = -24.66deg
+        gaugeNeedle.style.transform = "rotate(-24.66deg)";
+        
+        // Count score up
+        animateCounter(scoreValue, 36.3, 1800, 1, '');
+      }, 500);
+    });
+
+    /* ==========================================
+       INTERSECTION OBSERVER (SCROLL EFFECTS)
+       ========================================== */
+    const observerOptions = {
+      root: null,
+      threshold: 0.15,
+      rootMargin: "0px 0px -50px 0px"
+    };
+
+    const scrollObserver = new IntersectionObserver((entries, observer) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          // Add visible class to general fade-ups
+          if (entry.target.classList.contains('fade-up')) {
+            entry.target.classList.add('visible');
+          }
+          
+          // Showcase Gauge Sweep
+          if (entry.target.id === 'risk-analysis') {
+            triggerShowcaseGauge();
+          }
+
+          // Component Bars Fill-up
+          if (entry.target.classList.contains('risk-components')) {
+            triggerComponentBars();
+          }
+        }
+      });
+    }, observerOptions);
+
+    // Observe all fade-up elements
+    document.querySelectorAll('.fade-up').forEach(el => {
+      scrollObserver.observe(el);
+    });
+
+    // Observe specific sections
+    scrollObserver.observe(document.getElementById('risk-analysis'));
+    
+    const riskComponentsEl = document.querySelector('.risk-components');
+    if (riskComponentsEl) {
+      scrollObserver.observe(riskComponentsEl);
+    }
+
+    /* ==========================================
+       SHOWCASE GAUGE ANIMATION (ON INTERSECT)
+       ========================================== */
+    let showcaseTriggered = false;
+    function triggerShowcaseGauge() {
+      if (showcaseTriggered) return;
+      showcaseTriggered = true;
+
+      const gaugeTrack = document.getElementById('showcase-gauge-track');
+      const needle = document.getElementById('showcase-needle');
+      const scoreVal = document.getElementById('showcase-score-val');
+      const label = document.getElementById('showcase-score-label');
+
+      // Target: 63 (Moderate Risk)
+      // Path length is ~251px. Offset = 251 - (63/100 * 251) = 92.87
+      gaugeTrack.style.strokeDashoffset = "92.87";
+      
+      // Needle Rotation: Range is -90deg to +90deg (180deg total).
+      // Angle = -90 + (63 * 1.8) = 23.4deg
+      needle.style.transform = "rotate(23.4deg)";
+
+      // Count up score to 63
+      animateCounter(scoreVal, 63, 2000, 0, '');
+
+      // Fade label in
+      setTimeout(() => {
+        label.classList.add('active');
+      }, 1000);
+    }
+
+    /* ==========================================
+       COMPONENT BARS ANIMATION (ON INTERSECT)
+       ========================================== */
+    let componentsTriggered = false;
+    function triggerComponentBars() {
+      if (componentsTriggered) return;
+      componentsTriggered = true;
+
+      // Animate progress widths
+      const fills = document.querySelectorAll('.component-bar-fill');
+      fills.forEach(fill => {
+        const width = fill.getAttribute('data-width');
+        fill.style.width = width + '%';
+      });
+
+      // Animate percentage texts
+      const percentTexts = document.querySelectorAll('.component-pct-val');
+      percentTexts.forEach(pct => {
+        const target = parseInt(pct.getAttribute('data-target'));
+        animateCounter(pct, target, 1800, 0, '%');
+      });
+    }
+
+    /* ==========================================
+       HOW IT WORKS DYNAMIC DEMO CONTROLLER
+       ========================================== */
+    const stepItems = document.querySelectorAll('.step-item');
+    const demoSlides = document.querySelectorAll('.demo-slide');
+    const demoPanelTitle = document.getElementById('demo-panel-title');
+
+    const stepTitles = [
+      "Step 1: Input holdings",
+      "Step 2: Instant risk score",
+      "Step 3: What-if simulator"
+    ];
+
+    function goToDemoStep(stepNumber) {
+      // Update Step Items UI Active State
+      stepItems.forEach(item => {
+        const itemStep = parseInt(item.getAttribute('data-step'));
+        if (itemStep === stepNumber) {
+          item.classList.add('active');
+        } else {
+          item.classList.remove('active');
+        }
+      });
+
+      // Update Demo Slide active state
+      demoSlides.forEach((slide, index) => {
+        if (index + 1 === stepNumber) {
+          slide.classList.add('active');
+        } else {
+          slide.classList.remove('active');
+        }
+      });
+
+      // Update Title
+      demoPanelTitle.innerHTML = `
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="var(--color-primary)">
+          ${stepNumber === 1 
+            ? '<path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>' 
+            : stepNumber === 2 
+            ? '<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>' 
+            : '<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>'}
+        </svg>
+        ${stepTitles[stepNumber - 1]}
+      `;
+    }
+
+    // Attach click events to steps
+    stepItems.forEach(item => {
+      item.addEventListener('click', () => {
+        const stepNum = parseInt(item.getAttribute('data-step'));
+        goToDemoStep(stepNum);
+      });
+    });
+
+    // Step 1: Add holdings interactivity
+    function addDemoHolding() {
+      const tickerInput = document.getElementById('demo-inp-tick');
+      const qtyInput = document.getElementById('demo-inp-qty');
+      const priceInput = document.getElementById('demo-inp-price');
+      const list = document.getElementById('demo-holdings-list');
+
+      const ticker = tickerInput.value.trim().toUpperCase();
+      const qty = qtyInput.value.trim();
+      const price = priceInput.value.trim();
+
+      if (!ticker || !qty || !price) return;
+
+      // Add to UI list
+      const row = document.createElement('div');
+      row.className = 'demo-holding-row';
+      row.style.animation = 'fadeIn 0.3s ease';
+      row.innerHTML = `
+        <span class="demo-holding-ticker">${ticker}</span>
+        <span class="demo-holding-details">${qty} shares @ ₹${price}</span>
+      `;
+      list.appendChild(row);
+
+      // Scroll to bottom of holdings
+      list.scrollTop = list.scrollHeight;
+
+      // Reset inputs
+      tickerInput.value = '';
+      qtyInput.value = '';
+      priceInput.value = '';
+    }
+
+    // Step 3: What-if Simulator slider updates
+    function updateSimulation() {
+      const infySlider = document.getElementById('slider-infy');
+      const tcsSlider = document.getElementById('slider-tcs');
+      const hdfcSlider = document.getElementById('slider-hdfc');
+      
+      const infyValEl = document.getElementById('slider-infy-val');
+      const tcsValEl = document.getElementById('slider-tcs-val');
+      const hdfcValEl = document.getElementById('slider-hdfc-val');
+      const sharpeValEl = document.getElementById('sim-sharpe-val');
+
+      // Update Slider Percentage Labels
+      infyValEl.textContent = infySlider.value + '%';
+      tcsValEl.textContent = tcsSlider.value + '%';
+      hdfcValEl.textContent = hdfcSlider.value + '%';
+
+      // Simple mock calculation logic for Sharpe Ratio:
+      // More diversified portfolios (balanced weights) or tilting to HDFCBANK (financials, lower correlation to IT) improves the Sharpe.
+      const wInfy = parseInt(infySlider.value);
+      const wTcs = parseInt(tcsSlider.value);
+      const wHdfc = parseInt(hdfcSlider.value);
+
+      // Normalize weights
+      const total = wInfy + wTcs + wHdfc;
+      if (total === 0) return;
+
+      const pInfy = wInfy / total;
+      const pTcs = wTcs / total;
+      const pHdfc = wHdfc / total;
+
+      // Mock formula: Sharpe maximizes when pHdfc ~ 0.50, and IT (Infy/Tcs) is split
+      // Ideal: IT = 40% (20/20), Financials = 60%. Sharpe = 1.78
+      // Penalty for concentration in IT:
+      const itConcentration = pInfy + pTcs;
+      let calculatedSharpe = 1.82 - Math.abs(pHdfc - 0.6) * 1.2 - Math.abs(pInfy - pTcs) * 0.4;
+      
+      // Cap Sharpe boundaries
+      if (calculatedSharpe < 0.6) calculatedSharpe = 0.6;
+      if (calculatedSharpe > 1.95) calculatedSharpe = 1.95;
+
+      sharpeValEl.textContent = calculatedSharpe.toFixed(2);
+      
+      // Color coding Sharpe Value
+      if (calculatedSharpe >= 1.5) {
+        sharpeValEl.style.color = 'var(--color-green-light)';
+      } else if (calculatedSharpe >= 1.1) {
+        sharpeValEl.style.color = '#60a5fa'; // Blue
+      } else {
+        sharpeValEl.style.color = 'var(--color-red-light)';
+      }
+    }
+  </script>
+</body>
+</html>

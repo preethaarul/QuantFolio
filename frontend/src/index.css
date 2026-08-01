@@ -1,0 +1,216 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.dashboard-theme {
+  background: #0f172a;
+  color: #e2e8f0;
+}
+.dashboard-theme .bg-white {
+  background-color: #111827;
+}
+.dashboard-theme .bg-slate-50,
+.dashboard-theme .bg-gray-50 {
+  background-color: #111827;
+}
+.dashboard-theme .bg-slate-50\/50 {
+  background-color: rgba(15, 23, 42, 0.5);
+}
+.dashboard-theme .bg-slate-100,
+.dashboard-theme .bg-gray-100 {
+  background-color: #1f2937;
+}
+.dashboard-theme .bg-blue-50 {
+  background-color: rgba(59, 130, 246, 0.12);
+}
+.dashboard-theme .text-gray-900,
+.dashboard-theme .text-gray-800,
+.dashboard-theme .text-gray-700,
+.dashboard-theme .text-slate-800 {
+  color: #f8fafc;
+}
+.dashboard-theme .text-gray-600,
+.dashboard-theme .text-gray-500,
+.dashboard-theme .text-gray-400,
+.dashboard-theme .text-slate-400,
+.dashboard-theme .text-slate-500,
+.dashboard-theme .text-slate-600 {
+  color: #94a3b8;
+}
+.dashboard-theme .border-gray-100,
+.dashboard-theme .border-gray-200,
+.dashboard-theme .border-gray-50,
+.dashboard-theme .border-slate-200,
+.dashboard-theme .border-blue-100 {
+  border-color: #334155;
+}
+.dashboard-theme .hover\:bg-gray-50:hover,
+.dashboard-theme .hover\:bg-slate-50:hover {
+  background-color: #1e293b;
+}
+.dashboard-theme .hover\:bg-blue-50:hover {
+  background-color: rgba(59, 130, 246, 0.16);
+}
+
+:root {
+  color-scheme: dark;
+  font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: #f1f5f9;
+  background-color: #0f172a;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  background-color: #0f172a;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #0f172a 100%);
+  color: #f1f5f9;
+  position: relative;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  top: -50%;
+  left: -10%;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.15), transparent 70%);
+  border-radius: 50%;
+  animation: pulse 20s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  bottom: -30%;
+  right: -5%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.1), transparent 70%);
+  border-radius: 50%;
+  animation: pulse 25s ease-in-out infinite reverse;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 0.5; }
+  50% { transform: scale(1.1); opacity: 0.8; }
+}
+
+#root {
+  min-height: 100vh;
+  position: relative;
+  z-index: 1;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 3px solid rgba(6, 182, 212, 0.5);
+  outline-offset: 2px;
+}
+
+::selection {
+  background-color: rgba(6, 182, 212, 0.4);
+  color: #f1f5f9;
+}
+
+html {
+  scrollbar-color: #0ea5e9 #1e293b;
+}
+
+/* Glassy card styling */
+.card,
+[class*="bg-white"],
+[class*="bg-gray-50"],
+[class*="bg-slate-50"],
+[class*="bg-blue-50"] {
+  background-color: rgba(15, 23, 42, 0.5) !important;
+  backdrop-filter: blur(12px);
+  border-color: rgba(51, 65, 85, 0.3) !important;
+}
+
+/* Text color updates */
+.text-gray-900,
+.text-gray-800,
+.text-gray-700,
+.text-slate-800 {
+  color: #f1f5f9 !important;
+}
+
+.text-gray-600,
+.text-gray-500,
+.text-slate-600,
+.text-slate-500 {
+  color: #cbd5e1 !important;
+}
+
+.text-gray-400,
+.text-slate-400 {
+  color: #94a3b8 !important;
+}
+
+/* Button styling */
+button:not([class*="text-"])[class*="bg-"] {
+  background: linear-gradient(135deg, #2563eb, #0ea5e9) !important;
+  box-shadow: 0 10px 25px rgba(59, 130, 246, 0.2);
+}
+
+button[class*="bg-blue"]:not([disabled]) {
+  background: linear-gradient(135deg, #2563eb, #0ea5e9) !important;
+  transition: all 0.3s ease;
+}
+
+button[class*="bg-blue"]:not([disabled]):hover {
+  background: linear-gradient(135deg, #1d4ed8, #06b6d4) !important;
+}
+
+/* Border styling */
+.border-gray-100,
+.border-gray-200,
+.border-slate-200 {
+  border-color: rgba(51, 65, 85, 0.3) !important;
+}
+
+/* Hover states */
+.hover\:bg-gray-50:hover,
+.hover\:bg-slate-50:hover {
+  background-color: rgba(30, 41, 59, 0.7) !important;
+}
+
+.hover\:bg-blue-50:hover {
+  background-color: rgba(6, 182, 212, 0.1) !important;
+}
