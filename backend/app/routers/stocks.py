@@ -55,30 +55,6 @@ def get_sector(ticker: str) -> str:
 
 # --- Endpoint Routes ---
 
-@router.get("/{ticker}")
-def get_stock(ticker: str):
-    try:
-        stock = yf.Ticker(ticker + ".NS")  # .NS = NSE India
-        info = stock.info
-        hist = stock.history(period="1d")
-        if hist.empty:
-            # Try without .NS for US stocks
-            stock = yf.Ticker(ticker)
-            hist = stock.history(period="1d")
-            info = stock.info
-        current_price = round(hist['Close'].iloc[-1], 2) if not hist.empty else 0
-        return {
-            "ticker": ticker.upper(),
-            "current_price": current_price,
-            "company_name": info.get("longName", ticker),
-            "sector": info.get("sector", "Unknown"),
-            "pe_ratio": info.get("trailingPE", None),
-            "market_cap": info.get("marketCap", None),
-        }
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Could not fetch data for {ticker}: {str(e)}")
-
-
 @router.get("/risk/{portfolio_id}")
 def get_risk_metrics(
     portfolio_id: int,
@@ -799,4 +775,27 @@ def get_benchmark_comparison(
         import traceback
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
-    
+
+@router.get("/{ticker}")
+def get_stock(ticker: str):
+    try:
+        stock = yf.Ticker(ticker + ".NS")  # .NS = NSE India
+        info = stock.info
+        hist = stock.history(period="1d")
+        if hist.empty:
+            # Try without .NS for US stocks
+            stock = yf.Ticker(ticker)
+            hist = stock.history(period="1d")
+            info = stock.info
+        current_price = round(hist['Close'].iloc[-1], 2) if not hist.empty else 0
+        return {
+            "ticker": ticker.upper(),
+            "current_price": current_price,
+            "company_name": info.get("longName", ticker),
+            "sector": info.get("sector", "Unknown"),
+            "pe_ratio": info.get("trailingPE", None),
+            "market_cap": info.get("marketCap", None),
+        }
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Could not fetch data for {ticker}: {str(e)}")
+   
