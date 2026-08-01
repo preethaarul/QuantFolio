@@ -10,6 +10,8 @@ from app.models.user import User
 import requests
 from app.config import settings
 
+yf.set_tz_cache_location("/tmp/yfinance_cache")
+
 router = APIRouter()
 
 # --- Dynamic Sector Mapping with Cache ---
@@ -163,23 +165,40 @@ def get_risk_metrics(
 
 
 @router.post("/prices")
+@router.post("/prices")
 def get_multiple_prices(tickers: list[str]):
-    results = {}
-    for ticker in tickers:
-        try:
-            # Try NSE first
-            stock = yf.Ticker(ticker + ".NS")
-            hist = stock.history(period="2d")
-            if hist.empty:
-                stock = yf.Ticker(ticker)
-                hist = stock.history(period="2d")
-            if not hist.empty:
-                results[ticker] = round(float(hist['Close'].iloc[-1]), 2)
-            else:
+    try:
+        ns_tickers = [t + ".NS" for t in tickers]
+        data = yf.download(
+            ns_tickers,
+            period="2d",
+            auto_adjust=True,
+            progress=False
+        )['Close']
+
+        if isinstance(data, pd.Series):
+            data = data.to_frame()
+            data.columns = [tickers[0]]
+        else:
+            # Rename columns from TICKER.NS back to TICKER
+            data.columns = [col.replace(".NS", "") for col in data.columns]
+
+        results = {}
+        for ticker in tickers:
+            try:
+                if ticker in data.columns:
+                    last_price = data[ticker].dropna().iloc[-1]
+                    results[ticker] = round(float(last_price), 2)
+                else:
+                    results[ticker] = None
+            except:
                 results[ticker] = None
-        except:
-            results[ticker] = None
-    return results
+
+        return results
+
+    except Exception as e:
+        # Fallback — return None for all tickers gracefully
+        return {ticker: None for ticker in tickers}
 
 
 @router.get("/news/{ticker}")
@@ -779,23 +798,32 @@ def get_benchmark_comparison(
 @router.get("/{ticker}")
 def get_stock(ticker: str):
     try:
-        stock = yf.Ticker(ticker + ".NS")  # .NS = NSE India
-        info = stock.info
-        hist = stock.history(period="1d")
-        if hist.empty:
-            # Try without .NS for US stocks
-            stock = yf.Ticker(ticker)
-            hist = stock.history(period="1d")
-            info = stock.info
-        current_price = round(hist['Close'].iloc[-1], 2) if not hist.empty else 0
+        # Use download instead of Ticker.history — less rate limited
+        data = yf.download(
+            ticker + ".NS",
+            period="2d",
+            auto_adjust=True,
+            progress=False
+        )['Close']
+
+        if data.empty:
+            data = yf.download(
+                ticker,
+                period="2d",
+                auto_adjust=True,
+                progress=False
+            )['Close']
+
+        current_price = round(float(data.dropna().iloc[-1]), 2) if not data.empty else 0
+
         return {
             "ticker": ticker.upper(),
             "current_price": current_price,
-            "company_name": info.get("longName", ticker),
-            "sector": info.get("sector", "Unknown"),
-            "pe_ratio": info.get("trailingPE", None),
-            "market_cap": info.get("marketCap", None),
+            "company_name": ticker.upper(),
+            "sector": _sector_cache.get(ticker.upper(), "Unknown"),
         }
     except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Could not fetch data for {ticker}: {str(e)}")
-   
+        raise HTTPException(
+            status_code=400,
+            detail=f"Could not fetch data for {ticker}: {str(e)}"
+        )
