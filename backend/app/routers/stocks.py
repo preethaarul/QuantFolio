@@ -797,33 +797,61 @@ def get_benchmark_comparison(
 
 @router.get("/{ticker}")
 def get_stock(ticker: str):
+    clean_ticker = ticker.strip().upper()
+    
     try:
-        # Use download instead of Ticker.history — less rate limited
+        # Try Indian Exchange ticker (.NS) first
+        search_symbol = f"{clean_ticker}.NS" if not clean_ticker.endswith((".NS", ".BO")) else clean_ticker
+        
         data = yf.download(
-            ticker + ".NS",
+            search_symbol,
             period="2d",
             auto_adjust=True,
             progress=False
-        )['Close']
+        )
 
-        if data.empty:
+        # Fallback to direct ticker (e.g. US stocks like AAPL, MSFT) if .NS returned nothing
+        if data.empty and search_symbol != clean_ticker:
+            search_symbol = clean_ticker
             data = yf.download(
-                ticker,
+                search_symbol,
                 period="2d",
                 auto_adjust=True,
                 progress=False
-            )['Close']
+            )
 
-        current_price = round(float(data.dropna().iloc[-1]), 2) if not data.empty else 0
+        if data.empty or 'Close' not in data:
+            raise HTTPException(
+                status_code=404,
+                detail=f"No pricing data found for ticker '{clean_ticker}'"
+            )
+
+        # Extract the 'Close' column safely
+        close_data = data['Close'].dropna()
+
+        if close_data.empty:
+            current_price = 0.0
+        else:
+            # Get the last row (which may be a Series or scalar DataFrame)
+            last_val = close_data.iloc[-1]
+            
+            # If last_val is still a Series/DataFrame (due to MultiIndex), flatten it down to a scalar
+            if hasattr(last_val, 'values'):
+                last_val = last_val.values[0]
+
+            current_price = round(float(last_val), 2)
 
         return {
-            "ticker": ticker.upper(),
+            "ticker": clean_ticker,
             "current_price": current_price,
-            "company_name": ticker.upper(),
-            "sector": _sector_cache.get(ticker.upper(), "Unknown"),
+            "company_name": clean_ticker,
+            "sector": _sector_cache.get(clean_ticker, "Unknown"),
         }
+
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(
             status_code=400,
-            detail=f"Could not fetch data for {ticker}: {str(e)}"
+            detail=f"Could not fetch data for {clean_ticker}: {str(e)}"
         )
