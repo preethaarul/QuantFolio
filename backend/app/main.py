@@ -17,7 +17,13 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=[
+        "http://localhost:5173",
+        "http://localhost:3000",
+        "https://quantfolio-qf.vercel.app",
+        "https://quantfolio-qf-git-main-preethaarul.vercel.app",
+        "https://quantfolio-qf-preethaarul.vercel.app",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -33,5 +39,5 @@ def root():
     return {"app": "Quantfolio", "status": "running", "version": "1.0.0"}
 
 @app.get("/health")
-def health():
+def health_check():
     return {"status": "healthy"}
