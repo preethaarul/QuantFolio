@@ -1,3 +1,4 @@
+import traceback
 from fastapi import APIRouter, HTTPException, Depends
 import yfinance as yf
 import pandas as pd
@@ -9,6 +10,9 @@ from app.routers.auth import get_current_user
 from app.models.user import User
 import requests
 from app.config import settings
+from datetime import datetime
+import torch
+from chronos import ChronosPipeline
 
 yf.set_tz_cache_location("/tmp/yfinance_cache")
 
@@ -164,7 +168,6 @@ def get_risk_metrics(
         raise HTTPException(status_code=500, detail=f"Risk calculation failed: {str(e)}")
 
 
-@router.post("/prices")
 @router.post("/prices")
 def get_multiple_prices(tickers: list[str]):
     try:
@@ -795,6 +798,112 @@ def get_benchmark_comparison(
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
 
+
+# Load the official Chronos pipeline once on startup
+# Lazy load — only load when first forecast is requested
+_pipeline = None
+
+def get_pipeline():
+    global _pipeline
+    if _pipeline is None:
+        _pipeline = ChronosPipeline.from_pretrained(
+            "amazon/chronos-t5-tiny",
+            device_map="cpu",  # Force CPU for Render
+            torch_dtype=torch.float32
+        )
+    return _pipeline
+
+@router.get("/forecast/{ticker}")
+def get_chronos2_forecast(ticker: str):
+    try:
+        clean_ticker = ticker.strip().upper()
+        
+        if not clean_ticker.endswith((".NS", ".BO")) and not clean_ticker.startswith("^"):
+            clean_ticker = f"{clean_ticker}.NS"
+        
+        # Fetch historical data
+        df = yf.download(clean_ticker, period="6mo", interval="1d", 
+                        multi_level_index=False, progress=False)
+        
+        if df.empty or 'Close' not in df.columns:
+            raise HTTPException(status_code=400, detail="Invalid ticker or no data found")
+
+        # ── FIX: Clean the data before passing to Chronos ─────────────────
+        # 1. Extract close prices and drop NaN
+        close_series = df['Close'].dropna()
+        
+        # 2. Strip timezone info — Chronos cannot handle tz-aware timestamps
+        close_series.index = pd.DatetimeIndex(
+            close_series.index
+        ).tz_localize(None) if close_series.index.tz is None else pd.DatetimeIndex(
+            close_series.index
+        ).tz_convert(None)
+        
+        # 3. Resample to business day frequency to fill weekend gaps
+        # This gives Chronos a clean, regular daily frequency it can infer
+        close_series = close_series.resample('B').ffill()
+        
+        # 4. Reset to clean integer index for predict_df
+        context_df = pd.DataFrame({
+            "id": clean_ticker,
+            "timestamp": close_series.index,
+            "target": close_series.values.astype(float)
+        }).reset_index(drop=True)
+
+        # Remove any remaining NaN rows
+        context_df = context_df.dropna(subset=["target"])
+        context_df = context_df[context_df["target"] > 0]
+
+        if len(context_df) < 10:
+            raise HTTPException(status_code=400, detail="Not enough price history for forecast")
+
+        # Run Chronos forecast
+        prediction_length = 30
+        pred_df = get_pipeline().predict_df(
+            context_df,
+            prediction_length=prediction_length,
+            quantile_levels=[0.1, 0.5, 0.9],
+            id_column="id",
+            timestamp_column="timestamp",
+            target="target"
+        )
+
+        # Parse results
+       # 5. Parse results safely handling dynamic quantile column names
+        output_forecast = []
+        item_preds = pred_df[pred_df["id"] == clean_ticker].sort_values("timestamp")
+
+        # Dynamically find the correct column keys returned by chronos
+        cols = item_preds.columns
+        q1_col = next((c for c in cols if "0.1" in str(c)), "quantiles_0.1")
+        q2_col = next((c for c in cols if "0.5" in str(c)), "quantiles_0.5")
+        q3_col = next((c for c in cols if "0.9" in str(c)), "quantiles_0.9")
+
+        for _, row in item_preds.iterrows():
+            output_forecast.append({
+                "date": pd.to_datetime(row['timestamp']).strftime('%Y-%m-%d'),
+                "lower_bound": round(float(row[q1_col]), 2),    
+                "predicted_price": round(float(row[q2_col]), 2), 
+                "upper_bound": round(float(row[q3_col]), 2)      
+            })
+
+        current_price = float(close_series.iloc[-1])
+        final_predicted = output_forecast[-1]["predicted_price"]
+        expected_return = ((final_predicted - current_price) / current_price) * 100
+
+        return {
+            "ticker": clean_ticker,
+            "current_price": round(current_price, 2),
+            "expected_return_pct": round(float(expected_return), 2),
+            "forecast": output_forecast
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e))
+        
 @router.get("/{ticker}")
 def get_stock(ticker: str):
     clean_ticker = ticker.strip().upper()

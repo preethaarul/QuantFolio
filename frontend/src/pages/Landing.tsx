@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { BarChart3, Bot, Newspaper, RefreshCw, Target, Trophy } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import './Landing.css';
 
@@ -393,9 +394,9 @@ export default function Landing() {
                     <svg viewBox="0 0 100 60" style={{ width: '100%', height: 'auto' }}>
                       <defs>
                         <linearGradient id="mini-gauge-grad" x1="0%" y1="0%" x2="100%" y2="0%">
-                          <stop offset="0%" stop-color="#16a34a" />
-                          <stop offset="50%" stop-color="#eab308" />
-                          <stop offset="100%" stop-color="#dc2626" />
+                          <stop offset="0%" stopColor="#16a34a" />
+                          <stop offset="50%" stopColor="#eab308" />
+                          <stop offset="100%" stopColor="#dc2626" />
                         </linearGradient>
                       </defs>
                       <path d="M10 50 A40 40 0 0 1 90 50" fill="none" stroke="#334155" strokeWidth="8" strokeLinecap="round" />
@@ -493,32 +494,32 @@ export default function Landing() {
 
           <div className="lp-features-grid">
             <div className="lp-feature-card lp-fade-up lp-delay-1">
-              <div className="lp-feature-icon-wrapper">📊</div>
+              <div className="lp-feature-icon-wrapper"><BarChart3 className="h-6 w-6" /></div>
               <h3 className="lp-feature-title">Live P&L Tracking</h3>
               <p className="lp-feature-desc">Real NSE prices. See your actual gains and losses updated live with zero lag.</p>
             </div>
             <div className="lp-feature-card lp-fade-up lp-delay-2">
-              <div className="lp-feature-icon-wrapper">🎯</div>
+              <div className="lp-feature-icon-wrapper"><Target className="h-6 w-6" /></div>
               <h3 className="lp-feature-title">Portfolio Risk Score</h3>
               <p className="lp-feature-desc">A single 0-100 score built from Sharpe ratio, beta, VaR, and sector concentration metrics.</p>
             </div>
             <div className="lp-feature-card lp-fade-up lp-delay-3">
-              <div className="lp-feature-icon-wrapper">🤖</div>
+              <div className="lp-feature-icon-wrapper"><Bot className="h-6 w-6" /></div>
               <h3 className="lp-feature-title">AI Advisor</h3>
               <p className="lp-feature-desc">Get 3 personalised rebalancing recommendations based on your actual holdings and goals.</p>
             </div>
             <div className="lp-feature-card lp-fade-up lp-delay-1">
-              <div className="lp-feature-icon-wrapper">📰</div>
+              <div className="lp-feature-icon-wrapper"><Newspaper className="h-6 w-6" /></div>
               <h3 className="lp-feature-title">News Sentiment</h3>
               <p className="lp-feature-desc">Latest headlines for every holding, automatically scored positive or negative by Gemini.</p>
             </div>
             <div className="lp-feature-card lp-fade-up lp-delay-2">
-              <div className="lp-feature-icon-wrapper">🔄</div>
+              <div className="lp-feature-icon-wrapper"><RefreshCw className="h-6 w-6" /></div>
               <h3 className="lp-feature-title">What-if Simulator</h3>
               <p className="lp-feature-desc">Drag sliders to rebalance and instantly see how Sharpe ratio changes before submitting trades.</p>
             </div>
             <div className="lp-feature-card lp-fade-up lp-delay-3">
-              <div className="lp-feature-icon-wrapper">🏆</div>
+              <div className="lp-feature-icon-wrapper"><Trophy className="h-6 w-6" /></div>
               <h3 className="lp-feature-title">vs NIFTY 50</h3>
               <p className="lp-feature-desc">See your alpha. Plot your portfolio performance against India's benchmark index.</p>
             </div>
@@ -785,10 +786,10 @@ export default function Landing() {
                 <svg className="lp-gauge-svg" viewBox="0 0 200 120">
                   <defs>
                     <linearGradient id="gauge-gradient-react" x1="0%" y1="0%" x2="100%" y2="0%">
-                      <stop offset="0%" stop-color="#16a34a" />
-                      <stop offset="35%" stop-color="#22c55e" />
-                      <stop offset="70%" stop-color="#eab308" />
-                      <stop offset="100%" stop-color="#dc2626" />
+                      <stop offset="0%" stopColor="#16a34a" />
+                      <stop offset="35%" stopColor="#22c55e" />
+                      <stop offset="70%" stopColor="#eab308" />
+                      <stop offset="100%" stopColor="#dc2626" />
                     </linearGradient>
                   </defs>
                   {/* Track */}

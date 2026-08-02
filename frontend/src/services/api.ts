@@ -63,11 +63,12 @@ export const addHolding = (
 export const deleteHolding = (portfolioId: number, holdingId: number) =>
   API.delete(`/api/portfolio/${portfolioId}/holdings/${holdingId}`);
 
-// --- Stocks ---
+// --- Stocks & ML Forecasting ---
 export const getStockPrice = (ticker: string) => API.get(`/api/stocks/${ticker}`);
 export const getMultiplePrices = (tickers: string[]) => API.post('/api/stocks/prices', tickers);
 export const searchStocks = (query: string) => API.get(`/api/stocks/search/${query}`);
 export const getNewsSentiment = (ticker: string) => API.get(`/api/stocks/news/${ticker}`);
+export const getStockForecast = (ticker: string) => API.get(`/api/stocks/forecast/${ticker}`);
 
 // --- Analytics & Risk ---
 export const getRiskMetrics = (portfolioId: number) => API.get(`/api/stocks/risk/${portfolioId}`);
@@ -78,7 +79,8 @@ export const getPortfolioHealth = (portfolioId: number) => API.get(`/api/stocks/
 export const whatIfSimulation = (portfolioId: number, adjustments: Record<string, number>) =>
   API.post(`/api/stocks/whatif/${portfolioId}`, adjustments);
 
-// --- AI Advisor ---
-export const getAIAdvice = (portfolioId: number) => API.get(`/api/ai/advice/${portfolioId}`);
+// --- AI Advisor & Chatbot ---
+export const sendAIChat = (portfolioId: number, message: string) =>
+  API.post(`/api/ai/chat?portfolio_id=${portfolioId}`, { message });
 
 export default API;
