@@ -70,7 +70,7 @@ function ForecastModal({ ticker, onClose }: { ticker: string; onClose: () => voi
     return normalized;
   }, [data]);
 
-  const currentPrice = Number(data?.current_price ?? 0);
+  //const currentPrice = Number(data?.current_price ?? 0);
   const computedChangePct = data?.expected_return_pct ?? '0.00';
 
   useEffect(() => {
