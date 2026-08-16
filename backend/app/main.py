@@ -7,7 +7,7 @@ from app.routers import auth, portfolio, stocks, ai_advisor
 from app.database import Base, engine
 from app.models import user, portfolio as portfolio_model
 
-#Base.metadata.create_all(bind=engine)
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="Quantfolio API",
