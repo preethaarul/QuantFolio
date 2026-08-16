@@ -84,6 +84,10 @@ def get_risk_metrics(
         # Download holdings + NIFTY 50 benchmark
         all_tickers = tickers + ["^NSEI"]
         data = yf.download(all_tickers, period="1y", auto_adjust=True)['Close']
+        # Strip timezone — fixes numpy operations on tz-aware timestamps
+        if data.index.tz is not None:
+            data.index = data.index.tz_convert(None)
+        data = data.resample('B').ffill().dropna()
 
         if isinstance(data, pd.Series):
             data = data.to_frame()
@@ -271,55 +275,76 @@ def whatif_simulation(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """
-    adjustments: {"INFY": -10, "RELIANCE": +10} — percentage shifts
-    """
     holdings = db.query(Holding).filter(Holding.portfolio_id == portfolio_id).all()
     if not holdings:
         raise HTTPException(status_code=400, detail="No holdings found")
 
     total = sum(h.quantity * h.buy_price for h in holdings)
-
-    # Current allocations
     current = {h.ticker: round(h.quantity * h.buy_price / total * 100, 1) for h in holdings}
 
-    # Apply adjustments
     new_alloc = current.copy()
     for ticker, change in adjustments.items():
         if ticker in new_alloc:
             new_alloc[ticker] = max(0, new_alloc[ticker] + change)
 
-    # Normalize to 100%
     total_pct = sum(new_alloc.values())
     if total_pct > 0:
         new_alloc = {k: round(v / total_pct * 100, 1) for k, v in new_alloc.items()}
 
     try:
         tickers = [h.ticker + ".NS" for h in holdings]
-        data = yf.download(tickers, period="1y", auto_adjust=True)['Close']
+        data = yf.download(tickers, period="1y", auto_adjust=True, progress=False)['Close']
+
         if isinstance(data, pd.Series):
             data = data.to_frame()
+            data.columns = [holdings[0].ticker + ".NS"]
+
+        # ── FIX: strip timezone and resample to clean business day frequency ──
+        if data.index.tz is not None:
+            data.index = data.index.tz_convert(None)
+        else:
+            data.index = data.index.tz_localize(None)
+
+        data = data.resample('B').ffill().dropna()
 
         returns = data.pct_change().dropna()
 
-        # Current Sharpe
+        # Align column names — returns columns are TICKER.NS
         current_weights = np.array([current.get(h.ticker, 0) / 100 for h in holdings])
-        current_port_returns = returns.values @ current_weights
+        new_weights = np.array([new_alloc.get(h.ticker, 0) / 100 for h in holdings])
+
+        # Only use columns that exist in returns
+        valid_tickers = [t for t in tickers if t in returns.columns]
+        if not valid_tickers:
+            raise HTTPException(status_code=500, detail="No valid return data found")
+
+        valid_indices = [tickers.index(t) for t in valid_tickers]
+        current_weights_aligned = current_weights[valid_indices]
+        new_weights_aligned = new_weights[valid_indices]
+
+        # Normalize weights to sum to 1
+        if current_weights_aligned.sum() > 0:
+            current_weights_aligned = current_weights_aligned / current_weights_aligned.sum()
+        if new_weights_aligned.sum() > 0:
+            new_weights_aligned = new_weights_aligned / new_weights_aligned.sum()
+
+        valid_returns = returns[valid_tickers].values
+
+        current_port_returns = valid_returns @ current_weights_aligned
+        new_port_returns = valid_returns @ new_weights_aligned
+
         risk_free = 0.06 / 252
+
         current_sharpe = round(float(
             np.mean(current_port_returns - risk_free) /
             np.std(current_port_returns) * np.sqrt(252)
         ), 2)
 
-        # New Sharpe
-        new_weights = np.array([new_alloc.get(h.ticker, 0) / 100 for h in holdings])
-        new_port_returns = returns.values @ new_weights
         new_sharpe = round(float(
             np.mean(new_port_returns - risk_free) /
             np.std(new_port_returns) * np.sqrt(252)
         ), 2)
 
-        # New volatility
         new_vol = round(float(np.std(new_port_returns) * np.sqrt(252) * 100), 2)
         current_vol = round(float(np.std(current_port_returns) * np.sqrt(252) * 100), 2)
 
@@ -333,9 +358,11 @@ def whatif_simulation(
             "sharpe_change": round(new_sharpe - current_sharpe, 2),
             "volatility_change": round(new_vol - current_vol, 2)
         }
+    except HTTPException:
+        raise
     except Exception as e:
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
-
 
 @router.get("/search/{query}")
 def search_stocks(query: str):
@@ -378,6 +405,10 @@ def get_portfolio_history(
     try:
         tickers = [h.ticker + ".NS" for h in holdings]
         data = yf.download(tickers, period="6mo", auto_adjust=True)['Close']
+        # Strip timezone — fixes numpy operations on tz-aware timestamps
+        if data.index.tz is not None:
+            data.index = data.index.tz_convert(None)
+        data = data.resample('B').ffill().dropna()
 
         if isinstance(data, pd.Series):
             data = data.to_frame()
