@@ -11,8 +11,7 @@ from app.models.user import User
 import requests
 from app.config import settings
 from datetime import datetime
-import torch
-from chronos import ChronosPipeline
+
 
 yf.set_tz_cache_location("/tmp/yfinance_cache")
 
@@ -837,6 +836,8 @@ _pipeline = None
 def get_pipeline():
     global _pipeline
     if _pipeline is None:
+        import torch
+        from chronos import ChronosPipeline
         _pipeline = ChronosPipeline.from_pretrained(
             "amazon/chronos-t5-tiny",
             device_map="cpu",  # Force CPU for Render
