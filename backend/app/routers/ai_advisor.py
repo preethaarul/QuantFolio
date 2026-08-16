@@ -3,6 +3,7 @@ from fastapi import APIRouter, HTTPException, Depends, Query
 from sqlalchemy.orm import Session
 from google import genai
 from google.genai import types
+from app.config import settings
 
 from app.database import get_db
 from app.models.portfolio import Holding, Portfolio
@@ -32,7 +33,7 @@ def portfolio_chat(
     current_user: User = Depends(get_current_user)
 ):
     # 1. Check for API key dynamically so server startup doesn't fail
-    api_key = os.environ.get("GEMINI_API_KEY")
+    api_key = settings.GEMINI_API_KEY
     if not api_key:
         raise HTTPException(
             status_code=500,
